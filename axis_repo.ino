@@ -20,9 +20,9 @@ BLDCDriver3PWM driver(9, 8, 7, 6);
 float target_velocity = 0;
 // instantiate the commander
 Commander command(Serial);
-void doTarget(char* cmd) {
-    command.scalar(&target_velocity, cmd);
-}
+
+// Forward declaration of the function
+void doTarget(char* cmd);
 
 void setup() {
     spi2.begin();
@@ -53,9 +53,16 @@ void setup() {
     // align sensor and start FOC
     motor.initFOC();
 
+    // Add command handler
+    command.add('T', doTarget, "target velocity");
+
     Serial.println(F("Motor ready."));
     
-    _delay(1000);
+    delay(1000);
+}
+
+void doTarget(char* cmd) {
+    command.scalar(&target_velocity, cmd);
 }
 
 // PID controller without designated initializer
@@ -78,4 +85,7 @@ void loop() {
 
     // calculate the attractor
     attract_angle = findAttractor(motor.shaft_angle);
+
+    // handle serial commands
+    command.run();
 }
