@@ -1,4 +1,4 @@
-// Haptic texture "Rugós Érzet       " 
+// Haptic texture "Rugós Érzet        " 
 // https://community.simplefoc.com/t/haptic-textures/301/3
 
 #include "Arduino.h"
