@@ -1,6 +1,3 @@
-// Haptic texture "Rugós Érzet        " 
-// https://community.simplefoc.com/t/haptic-textures/301/3
-
 #include "Arduino.h"
 #include "SPI.h"
 #include "SimpleFOC.h"
@@ -23,67 +20,62 @@ BLDCDriver3PWM driver = BLDCDriver3PWM(9, 8, 7, 6);
 float target_velocity = 0;
 // instantiate the commander
 Commander command = Commander(Serial);
-void doTarget(char* cmd) { command.scalar(&target_velocity, cmd); }
-
-void setup() {
-  spi2.begin();
-  // initialise magnetic sensor hardware
-  sensor.init(&spi2);
-  // link the motor to the sensor
-  motor.linkSensor(&sensor);
-  // pwm frequency to be used [Hz]
-  driver.pwm_frequency = 200000;
-  // power supply voltage
-  driver.voltage_power_supply = 12;
-  driver.init();
-  motor.linkDriver(&driver);
-
-  // set motion control loop to be used
-  motor.controller = MotionControlType::torque;
-
-  // default voltage_power_supply
-  motor.voltage_limit = 8; // Reduced voltage to avoid over-excitation
-  
-  // use monitoring with serial
-  Serial.begin(115200);
-  // comment out if not needed
-  motor.useMonitoring(Serial);
-
-  // initialize motor
-  motor.init();
-  // align sensor and start FOC
-  motor.initFOC();
-
-  Serial.println(F("Motor ready."));
-  
-  _delay(1000);
+void doTarget(char* cmd) {
+    command.scalar(&target_velocity, cmd);
 }
 
-// haptic spring effect controller - only Proportional
-// The further the handle moves from the center, the greater the opposing force
-PIDController P_haptic_spring{.P=20, .I=0, .D=0.1, .output_ramp=50000, .limit=8};
+void setup() {
+    spi2.begin();
+    // initialise magnetic sensor hardware
+    sensor.init(&spi2);
+    // link the motor to the sensor
+    motor.linkSensor(&sensor);
+    // pwm frequency to be used [Hz]
+    driver.pwm_frequency = 200000;
+    // power supply voltage
+    driver.voltage_power_supply = 12;
+    driver.init();
+    motor.linkDriver(&driver);
 
-// Spring center angle
-float spring_center_angle = 0;
+    // set motion control loop to be used
+    motor.controller = MotionControlType::torque;
 
-float calculateSpringForce(float current_angle) {
-  // The more you move away from the center, the greater the force
-  float stiffness = 5.0;  // Spring stiffness
-  float max_angle = 180.0 * _PI / 180.0;  // Maximum angle for full spring force (one full revolution)
-  if (abs(current_angle - spring_center_angle) < 5.0 * _PI / 180.0) {
-    return 0;  // No force within 5 degrees of the center
-  }
-  float normalized_angle = constrain(current_angle - spring_center_angle, -max_angle, max_angle) / max_angle;
-  return -stiffness * normalized_angle * max_angle;
+    // default voltage_power_supply
+    motor.voltage_limit = 12;
+    
+    // use monitoring with serial
+    Serial.begin(115200);
+    // comment out if not needed
+    motor.useMonitoring(Serial);
+
+    // initialize motor
+    motor.init();
+    // align sensor and start FOC
+    motor.initFOC();
+
+    Serial.println(F("Motor ready."));
+    
+    _delay(1000);
+}
+
+// PID controller with appropriate constructor
+PIDController P_haptic_spring(20, 0, 0.1, 50000, 8);
+// attractor angle variable
+float attract_angle = 0;
+// distance between attraction points
+float attractor_distance = 10 * _PI / 180.0;
+
+float findAttractor(float current_angle) {
+    return round(current_angle / attractor_distance) * attractor_distance;
 }
 
 void loop() {
-  // main FOC algorithm function
-  motor.loopFOC();
+    // main FOC algorithm function
+    motor.loopFOC();
 
-  // calculate spring force
-  float spring_force = calculateSpringForce(motor.shaft_angle);
+    // Motion control function
+    motor.move(P_haptic_spring(attract_angle - motor.shaft_angle));
 
-  // Motion control function with spring-like response
-  motor.move(P_haptic_spring(spring_force));
-} 
+    // calculate the attractor
+    attract_angle = findAttractor(motor.shaft_angle);
+}
