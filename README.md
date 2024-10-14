@@ -31,7 +31,10 @@ Run the following commands to install Python 3, Git, and additional libraries:
 ```sh
 sudo apt-get update
 sudo apt-get install -y python3 git
-pip3 install gitpython requests
+python3 -m venv /home/raspi5/venv
+echo 'source /home/raspi5/venv/bin/activate' >> ~/.bashrc
+source /home/raspi5/venv/bin/activate
+pip install gitpython requests
 ```
 
 ### 3. Clone the GitHub Repository and Monitor for Updates
