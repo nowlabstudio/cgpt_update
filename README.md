@@ -46,7 +46,7 @@ import time
 import git
 
 # Configuration
-REPO_PATH = "/home/raspi5/arduino_repo"  # Path where the repository will be cloned
+REPO_PATH = "/home/raspi5/axis_repo" #  Path where the repository will be cloned
 GITHUB_REPO_URL = "https://<YOUR_PERSONAL_ACCESS_TOKEN>@github.com/nowlabstudio/cgpt_update.git"  # GitHub repository URL with Personal Access Token
 CHECK_INTERVAL = 60  # Interval to check for updates (in seconds)
 
@@ -85,10 +85,11 @@ if __name__ == "__main__":
 
 ### 5. Run the Script
 
-Run the script on the Raspberry Pi:
+Activate the virtual environment and run the script on the Raspberry Pi:
 
 ```sh
-python3 /home/raspi5/github_auto_uploader.py
+source /home/raspi5/venv/bin/activate
+python /home/raspi5/github_auto_uploader.py
 ```
 
 The script will continuously monitor the specified GitHub repository for any updates and pull changes to the local folder (`/home/raspi5/arduino_repo`) every 60 seconds.
@@ -115,7 +116,7 @@ To ensure the script runs on boot, you can use `systemd`:
    After=network.target
 
    [Service]
-   ExecStart=/usr/bin/python3 /home/raspi5/github_auto_uploader.py
+   ExecStart=/home/raspi5/venv/bin/python /home/raspi5/github_auto_uploader.py
    WorkingDirectory=/home/raspi5
    StandardOutput=inherit
    StandardError=inherit
