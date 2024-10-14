@@ -56,8 +56,9 @@ import git
 
 # Configuration
 REPO_PATH = "/home/raspi5/axis_repo" #  Path where the repository will be cloned
-GITHUB_REPO_URL = "https://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@github.com/nowlabstudio/cgpt_update.git"  # GitHub repository URL with Personal Access Token
-CHECK_INTERVAL = 60  # Interval to check for updates (in seconds)
+GITHUB_REPO_URL = "https://<YOUR_PERSONAL_ACCESS_TOKEN>@github.com/nowlabstudio/cgpt_update.git"  # Replace <YOUR_PERSONAL_ACCESS_TOKEN> with your GitHub token
+
+CHECK_INTERVAL = 5  # Interval to check for updates (in seconds)
 
 # Clone or open the repository
 def get_repo():
@@ -81,8 +82,7 @@ def main():
             origin.fetch()
             
         except KeyboardInterrupt:
-            print("
-Stopping script.")
+            print("Stopping script.")
             break
         if repo.head.commit != origin.refs.main.commit:
             print("New update found. Pulling changes...")
@@ -96,12 +96,6 @@ if __name__ == "__main__":
     main()
 ```
 
-### 4. Configure GitHub Personal Access Token (PAT)
-
-- Go to GitHub: **Settings > Developer Settings > Personal Access Tokens**.
-- Generate a new token with permissions for accessing repositories (e.g., `repo` scope).
-- Replace `<YOUR_PERSONAL_ACCESS_TOKEN>` in the script with your generated token.
-
 ### 5. Run the Script
 
 Activate the virtual environment and run the script on the Raspberry Pi:
@@ -111,7 +105,7 @@ source /home/raspi5/venv/bin/activate
 python /home/raspi5/github_auto_uploader.py
 ```
 
-The script will continuously monitor the specified GitHub repository for any updates and pull changes to the local folder (`/home/raspi5/axis_repo`) every 60 seconds.
+The script will continuously monitor the specified GitHub repository for any updates and pull changes to the local folder (`/home/raspi5/axis_repo`) every 5 seconds.
 
 ### 6. Preparing for Upload to the AXIS Device
 
