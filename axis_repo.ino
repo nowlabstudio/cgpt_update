@@ -13,13 +13,13 @@ MagneticSensorAS5048A sensor(SENSOR_CS, true);
 MbedSPI spi2(SPI_2_MISO, SPI_2_MOSI, SPI_2_SCK);
 
 // BLDC motor & driver instance
-BLDCMotor motor = BLDCMotor(11);
-BLDCDriver3PWM driver = BLDCDriver3PWM(9, 8, 7, 6);
+BLDCMotor motor(11);
+BLDCDriver3PWM driver(9, 8, 7, 6);
 
 // velocity set point variable
 float target_velocity = 0;
 // instantiate the commander
-Commander command = Commander(Serial);
+Commander command(Serial);
 void doTarget(char* cmd) {
     command.scalar(&target_velocity, cmd);
 }
@@ -58,7 +58,7 @@ void setup() {
     _delay(1000);
 }
 
-// PID controller with appropriate constructor
+// PID controller without designated initializer
 PIDController P_haptic_spring(20, 0, 0.1, 50000, 8);
 // attractor angle variable
 float attract_angle = 0;
