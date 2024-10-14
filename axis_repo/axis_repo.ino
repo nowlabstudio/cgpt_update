@@ -2,7 +2,7 @@
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("Setup com p lete.");
+    Serial.println("Set up com p lete.");
 }
 
 void loop() {
