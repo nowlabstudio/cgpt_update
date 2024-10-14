@@ -36,7 +36,16 @@ source /home/raspi5/venv/bin/activate
 pip install gitpython requests
 ```
 
-### 3. Clone the GitHub Repository and Monitor for Updates
+### 3. Create and Set Up the Repository Directory
+
+Create the directory for cloning the GitHub repository and set the appropriate permissions:
+
+```sh
+mkdir -p /home/raspi5/axis_repo
+sudo chown -R raspi5:raspi5 /home/raspi5/axis_repo
+```
+
+### 4. Clone the GitHub Repository and Monitor for Updates
 
 Create the Python script (`github_auto_uploader.py`) in the directory `/home/raspi5/` with the following code:
 
@@ -47,13 +56,17 @@ import git
 
 # Configuration
 REPO_PATH = "/home/raspi5/axis_repo" #  Path where the repository will be cloned
-GITHUB_REPO_URL = "https://<YOUR_PERSONAL_ACCESS_TOKEN>@github.com/nowlabstudio/cgpt_update.git"  # GitHub repository URL with Personal Access Token
+GITHUB_REPO_URL = "https://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@github.com/nowlabstudio/cgpt_update.git"  # GitHub repository URL with Personal Access Token
 CHECK_INTERVAL = 60  # Interval to check for updates (in seconds)
 
 # Clone or open the repository
 def get_repo():
-    if not os.path.exists(REPO_PATH):
+    if not os.path.exists(REPO_PATH) or not os.path.exists(os.path.join(REPO_PATH, ".git")):
         print("Cloning repository...")
+        if os.path.exists(REPO_PATH):
+            # Remove existing directory if it's not a valid git repo
+            import shutil
+            shutil.rmtree(REPO_PATH)
         git.Repo.clone_from(GITHUB_REPO_URL, REPO_PATH)
     return git.Repo(REPO_PATH)
 
@@ -63,9 +76,15 @@ def main():
     origin = repo.remotes.origin
 
     while True:
-        print("Checking for updates...")
-        origin.fetch()
-        if repo.head.commit != origin.refs.master.commit:
+        try:
+            print("Checking for updates...")
+            origin.fetch()
+            
+        except KeyboardInterrupt:
+            print("
+Stopping script.")
+            break
+        if repo.head.commit != origin.refs.main.commit:
             print("New update found. Pulling changes...")
             origin.pull()
         else:
@@ -92,7 +111,7 @@ source /home/raspi5/venv/bin/activate
 python /home/raspi5/github_auto_uploader.py
 ```
 
-The script will continuously monitor the specified GitHub repository for any updates and pull changes to the local folder (`/home/raspi5/arduino_repo`) every 60 seconds.
+The script will continuously monitor the specified GitHub repository for any updates and pull changes to the local folder (`/home/raspi5/axis_repo`) every 60 seconds.
 
 ### 6. Preparing for Upload to the AXIS Device
 
